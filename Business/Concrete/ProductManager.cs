@@ -34,6 +34,10 @@ namespace Business.Concrete
         {
             return new SuccessDataResult<List<Product>>(_productDal.GetList(p => p.CategoryId == categoryId).ToList());
         }
+
+        // Cross Cutting Concerns(Uygulamayı dikine kesen ilgi alanları) -Validation, Cache, Log, Performance, Auth(Rol yönetimi), Transaction
+        // AOP Aspect Oriented Programing(Yazılım Geliştirme Yaklaşımı)
+
         public IResult Add(Product product)
         {
             // magic string 
