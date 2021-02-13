@@ -2,6 +2,7 @@
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspects.Autofac.Validation;
+using Core.Aspects.Transaction;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -37,7 +38,7 @@ namespace Business.Concrete
         // Cross Cutting Concerns(Uygulamayı dikine kesen ilgi alanları) -Validation, Cache, Log, Performance, Auth(Rol yönetimi), Transaction
         // AOP Aspect Oriented Programing(Yazılım Geliştirme Yaklaşımı)
         // Aspect yazabilmek için Autofac kullanıldı
-        [ValidationAspect(typeof(ProductValidator))]
+        [ValidationAspect(typeof(ProductValidator),Priority = 1)]
         public IResult Add(Product product)
         {
             // magic string 
@@ -56,6 +57,14 @@ namespace Business.Concrete
         public IResult Update(Product product)
         {
             _productDal.Update(product);
+            return new SuccessResult(Messages.ProductUpdated);
+        }
+
+        [TransactionScopeAspect]
+        public IResult TransactioonalOperation(Product product)
+        {
+            _productDal.Update(product);
+            _productDal.Add(product);
             return new SuccessResult(Messages.ProductUpdated);
         }
     }
