@@ -1,13 +1,11 @@
 ﻿using Business.Abstract;
 using Business.Constants;
+using Business.ValidationRules.FluentValidation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
-using DataAccess.Concrete.EntityFramework;
 using Entities.Concrete;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Business.Concrete
 {
@@ -37,12 +35,13 @@ namespace Business.Concrete
 
         // Cross Cutting Concerns(Uygulamayı dikine kesen ilgi alanları) -Validation, Cache, Log, Performance, Auth(Rol yönetimi), Transaction
         // AOP Aspect Oriented Programing(Yazılım Geliştirme Yaklaşımı)
-
+        // Aspect yazabilmek için Autocat kullanıldı
+        [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
             // magic string 
             //Business codes
-            //Daha önce eklenen bir ürün isminin bir tekrar eklenmemesi vey validosyonkodlarının burada çağrılması gibi
+            //Daha önce eklenen bir ürün isminin bir tekrar eklenmemesi vey validosyonkodlarının burada çağrılması gibiS
             _productDal.Add(product);
            return new SuccessResult(Messages.ProductAdded);
         }
