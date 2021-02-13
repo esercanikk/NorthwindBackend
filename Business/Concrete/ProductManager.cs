@@ -36,7 +36,7 @@ namespace Business.Concrete
 
         // Cross Cutting Concerns(Uygulamayı dikine kesen ilgi alanları) -Validation, Cache, Log, Performance, Auth(Rol yönetimi), Transaction
         // AOP Aspect Oriented Programing(Yazılım Geliştirme Yaklaşımı)
-        // Aspect yazabilmek için Autocat kullanıldı
+        // Aspect yazabilmek için Autofac kullanıldı
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
