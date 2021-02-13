@@ -1,7 +1,9 @@
 ﻿using Business.Abstract;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Caching;
 using Core.Aspects.Autofac.Validation;
+using Core.Aspects.Caching;
 using Core.Aspects.Transaction;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
@@ -30,6 +32,7 @@ namespace Business.Concrete
             return new SuccessDataResult<List<Product>>(_productDal.GetList().ToList());
         }
 
+        [CacheAspect(10)]
         public IDataResult<List<Product>> GetListByCategory(int categoryId)
         {
             return new SuccessDataResult<List<Product>>(_productDal.GetList(p => p.CategoryId == categoryId).ToList());
@@ -39,6 +42,7 @@ namespace Business.Concrete
         // AOP Aspect Oriented Programing(Yazılım Geliştirme Yaklaşımı)
         // Aspect yazabilmek için Autofac kullanıldı
         [ValidationAspect(typeof(ProductValidator),Priority = 1)]
+        [CacheRemoveAspect("IProductService.Get")]
         public IResult Add(Product product)
         {
             // magic string 
