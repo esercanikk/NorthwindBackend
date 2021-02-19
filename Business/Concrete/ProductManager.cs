@@ -9,10 +9,12 @@ using Core.Aspects.Autofac.Validation;
 using Core.Aspects.Caching;
 using Core.Aspects.Transaction;
 using Core.CrossCuttingConcerns.Logging.Log4Net.Loggers;
+using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -51,15 +53,31 @@ namespace Business.Concrete
         // Cross Cutting Concerns(Uygulamayı dikine kesen ilgi alanları) -Validation, Cache, Log, Performance, Auth(Rol yönetimi), Transaction
         // AOP Aspect Oriented Programing(Yazılım Geliştirme Yaklaşımı)
         // Aspect yazabilmek için Autofac kullanıldı
-        [ValidationAspect(typeof(ProductValidator),Priority = 1)]
+        [ValidationAspect(typeof(ProductValidator), Priority = 1)]
         [CacheRemoveAspect("IProductService.Get")]
         public IResult Add(Product product)
         {
             // magic string 
             //Business codes
-            //Daha önce eklenen bir ürün isminin bir tekrar eklenmemesi vey validosyonkodlarının burada çağrılması gibiS
+            //Daha önce eklenen bir ürün isminin bir tekrar eklenmemesi vey validosyonkodlarının burada çağrılması gibiSi
+            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName));
+            if (result != null)
+            {
+                return result;
+            }
             _productDal.Add(product);
-           return new SuccessResult(Messages.ProductAdded);
+            return new SuccessResult(Messages.ProductAdded);
+        }
+
+        private IResult CheckIfProductNameExists(string productName)
+        {
+            var result = _productDal.GetList(p => p.ProductName == productName).Any();
+            if (result)
+            {
+                return new ErrorResult(Messages.ProductNameAlreadyExists);
+            }
+
+            return new SuccessResult();
         }
 
         public IResult Delete(Product product)
