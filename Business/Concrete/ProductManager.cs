@@ -24,10 +24,12 @@ namespace Business.Concrete
     public class ProductManager : IProductService
     {
         private IProductDal _productDal;
+        private ICategoryService _categoryService;
 
-        public ProductManager(IProductDal productDal)
+        public ProductManager(IProductDal productDal, ICategoryService categoryService)
         {
             _productDal = productDal;
+            _categoryService = categoryService;
         }
 
         public IDataResult<Product> GetById(int productId)
@@ -60,7 +62,7 @@ namespace Business.Concrete
             // magic string 
             //Business codes
             //Daha önce eklenen bir ürün isminin bir tekrar eklenmemesi vey validosyonkodlarının burada çağrılması gibiSi
-            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName));
+            IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName), CheckIfCategoryIsEnabled());
             if (result != null)
             {
                 return result;
@@ -73,6 +75,17 @@ namespace Business.Concrete
         {
             var result = _productDal.GetList(p => p.ProductName == productName).Any();
             if (result)
+            {
+                return new ErrorResult(Messages.ProductNameAlreadyExists);
+            }
+
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfCategoryIsEnabled()
+        {
+            var result = _categoryService.GetList();
+            if (result.Data.Count < 10)
             {
                 return new ErrorResult(Messages.ProductNameAlreadyExists);
             }
